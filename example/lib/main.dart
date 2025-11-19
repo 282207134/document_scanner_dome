@@ -2,172 +2,89 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 
-/// 示例应用程序入口
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
-/// 应用程序主类
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '文档扫描器示例',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: DocumentScannerPage(),
+      title: '文档扫描器',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: ScannerPage(),
     );
   }
 }
 
-/// 文档扫描器页面
-class DocumentScannerPage extends StatefulWidget {
+class ScannerPage extends StatefulWidget {
   @override
-  _DocumentScannerPageState createState() => _DocumentScannerPageState();
+  _ScannerPageState createState() => _ScannerPageState();
 }
 
-class _DocumentScannerPageState extends State<DocumentScannerPage> {
-  /// 存储扫描的图片路径
-  List<String> _scannedImages = [];
+class _ScannerPageState extends State<ScannerPage> {
+  List<String> _images = [];
+  bool _scanning = false;
 
-  /// 是否正在扫描
-  bool _isScanning = false;
-
-  /// 基本扫描 - 使用默认设置
-  Future<void> _scanDocumentBasic() async {
-    setState(() {
-      _isScanning = true;
-    });
-
+  // 基本扫描
+  Future<void> _basicScan() async {
+    setState(() => _scanning = true);
     try {
-      // 调用文档扫描器
       final images = await CunningDocumentScanner.getPictures();
-
       if (images != null && images.isNotEmpty) {
-        setState(() {
-          _scannedImages = images;
-        });
-
-        _showMessage('成功扫描 ${images.length} 张图片');
+        setState(() => _images = images);
+        _showMessage('扫描成功 ${images.length} 张');
       } else {
-        _showMessage('扫描已取消');
+        _showMessage('已取消');
       }
     } catch (e) {
-      _showError('扫描失败: $e');
+      _showMessage('失败: $e');
     } finally {
-      setState(() {
-        _isScanning = false;
-      });
+      setState(() => _scanning = false);
     }
   }
 
-  /// Android 高级扫描 - 限制页数和允许图库导入
-  Future<void> _scanDocumentAndroid() async {
-    setState(() {
-      _isScanning = true;
-    });
-
+  // Android 高级扫描
+  Future<void> _androidScan() async {
+    setState(() => _scanning = true);
     try {
       final images = await CunningDocumentScanner.getPictures(
-        noOfPages: 5, // 最多扫描 5 页
-        isGalleryImportAllowed: true, // 允许从图库选择
+        noOfPages: 5,
+        isGalleryImportAllowed: true,
       );
-
       if (images != null && images.isNotEmpty) {
-        setState(() {
-          _scannedImages = images;
-        });
-
-        _showMessage('成功扫描 ${images.length} 张图片');
-      } else {
-        _showMessage('扫描已取消');
+        setState(() => _images = images);
+        _showMessage('扫描成功 ${images.length} 张');
       }
     } catch (e) {
-      _showError('扫描失败: $e');
+      _showMessage('失败: $e');
     } finally {
-      setState(() {
-        _isScanning = false;
-      });
+      setState(() => _scanning = false);
     }
   }
 
-  /// iOS 高级扫描 - 使用 JPEG 格式和自定义压缩质量
-  Future<void> _scanDocumentIOS() async {
-    setState(() {
-      _isScanning = true;
-    });
-
+  // iOS 高级扫描
+  Future<void> _iosScan() async {
+    setState(() => _scanning = true);
     try {
       final images = await CunningDocumentScanner.getPictures(
         iosScannerOptions: IosScannerOptions(
-          imageFormat: IosImageFormat.jpg, // 使用 JPEG 格式
-          jpgCompressionQuality: 0.7, // 70% 质量
+          imageFormat: IosImageFormat.jpg,
+          jpgCompressionQuality: 0.7,
         ),
       );
-
       if (images != null && images.isNotEmpty) {
-        setState(() {
-          _scannedImages = images;
-        });
-
-        _showMessage('成功扫描 ${images.length} 张图片');
-      } else {
-        _showMessage('扫描已取消');
+        setState(() => _images = images);
+        _showMessage('扫描成功 ${images.length} 张');
       }
     } catch (e) {
-      _showError('扫描失败: $e');
+      _showMessage('失败: $e');
     } finally {
-      setState(() {
-        _isScanning = false;
-      });
+      setState(() => _scanning = false);
     }
   }
 
-  /// 清除所有扫描的图片
-  void _clearImages() {
-    setState(() {
-      _scannedImages.clear();
-    });
-    _showMessage('已清除所有图片');
-  }
-
-  /// 显示消息提示
-  void _showMessage(String message) {
+  void _showMessage(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: Duration(seconds: 2),
-      ),
-    );
-  }
-
-  /// 显示错误提示
-  void _showError(String error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(error),
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 3),
-      ),
-    );
-  }
-
-  /// 构建扫描按钮
-  Widget _buildScanButton({
-    required String label,
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return ElevatedButton.icon(
-      onPressed: _isScanning ? null : onPressed,
-      icon: Icon(icon),
-      label: Text(label),
-      style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        textStyle: TextStyle(fontSize: 16),
-      ),
+      SnackBar(content: Text(msg), duration: Duration(seconds: 2)),
     );
   }
 
@@ -175,139 +92,80 @@ class _DocumentScannerPageState extends State<DocumentScannerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('文档扫描器示例'),
+        title: Text('文档扫描器'),
         actions: [
-          if (_scannedImages.isNotEmpty)
+          if (_images.isNotEmpty)
             IconButton(
               icon: Icon(Icons.delete),
-              onPressed: _clearImages,
-              tooltip: '清除所有图片',
+              onPressed: () => setState(() => _images.clear()),
             ),
         ],
       ),
       body: Column(
         children: [
-          // 扫描按钮区域
+          // 按钮区域
           Container(
             padding: EdgeInsets.all(16),
             color: Colors.grey[100],
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  '选择扫描模式',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 16),
-                _buildScanButton(
-                  label: '基本扫描',
-                  icon: Icons.document_scanner,
-                  onPressed: _scanDocumentBasic,
+                ElevatedButton.icon(
+                  onPressed: _scanning ? null : _basicScan,
+                  icon: Icon(Icons.document_scanner),
+                  label: Text('基本扫描'),
                 ),
                 SizedBox(height: 8),
                 if (Platform.isAndroid)
-                  _buildScanButton(
-                    label: 'Android 高级扫描',
-                    icon: Icons.android,
-                    onPressed: _scanDocumentAndroid,
+                  ElevatedButton.icon(
+                    onPressed: _scanning ? null : _androidScan,
+                    icon: Icon(Icons.android),
+                    label: Text('Android 高级'),
                   ),
                 if (Platform.isIOS)
-                  _buildScanButton(
-                    label: 'iOS 高级扫描',
-                    icon: Icons.apple,
-                    onPressed: _scanDocumentIOS,
+                  ElevatedButton.icon(
+                    onPressed: _scanning ? null : _iosScan,
+                    icon: Icon(Icons.apple),
+                    label: Text('iOS 高级'),
                   ),
-                if (_isScanning)
+                if (_scanning)
                   Padding(
                     padding: EdgeInsets.only(top: 16),
-                    child: Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    child: CircularProgressIndicator(),
                   ),
               ],
             ),
           ),
-
-          // 扫描结果显示区域
+          // 图片列表
           Expanded(
-            child: _scannedImages.isEmpty
+            child: _images.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.camera_alt,
-                          size: 64,
-                          color: Colors.grey,
-                        ),
+                        Icon(Icons.camera_alt, size: 64, color: Colors.grey),
                         SizedBox(height: 16),
-                        Text(
-                          '还没有扫描的文档',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          '点击上方按钮开始扫描',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
+                        Text('还没有扫描的文档', style: TextStyle(color: Colors.grey)),
                       ],
                     ),
                   )
                 : ListView.builder(
-                    itemCount: _scannedImages.length,
+                    itemCount: _images.length,
                     padding: EdgeInsets.all(8),
                     itemBuilder: (context, index) {
-                      final imagePath = _scannedImages[index];
                       return Card(
-                        elevation: 4,
                         margin: EdgeInsets.symmetric(vertical: 8),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // 图片
-                            ClipRRect(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(4),
-                              ),
-                              child: Image.file(
-                                File(imagePath),
-                                fit: BoxFit.cover,
-                                height: 300,
-                              ),
+                            Image.file(
+                              File(_images[index]),
+                              fit: BoxFit.cover,
+                              height: 300,
                             ),
-                            // 图片信息
                             Padding(
                               padding: EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '第 ${index + 1} 页',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 4),
-                                  Text(
-                                    '路径: $imagePath',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey[600],
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
+                              child: Text(
+                                '第 ${index + 1} 页',
+                                style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
