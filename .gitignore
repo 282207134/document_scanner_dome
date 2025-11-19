@@ -1,0 +1,29 @@
+# 杂项文件
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+
+# IntelliJ 相关
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code 配置文件夹
+# 该文件夹包含在 VS Code 中配置的启动配置和任务
+# 您可能希望将其包含在版本控制中，因此默认情况下注释此行
+#.vscode/
+
+# Flutter/Dart/Pub 相关
+# 库不应包含 pubspec.lock，详见 https://dart.dev/guides/libraries/private-files#pubspeclock
+/pubspec.lock
+**/doc/api/
+.dart_tool/
+.packages
+build/

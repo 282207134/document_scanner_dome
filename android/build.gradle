@@ -1,0 +1,66 @@
+// Android 构建配置文件
+// 此文件定义了插件的构建设置和依赖项
+
+group 'biz.cunning.cunning_document_scanner'
+version '1.0'
+
+// 应用 Kotlin Android 插件
+buildscript {
+    ext.kotlin_version = '1.9.0'
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.3.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    // 编译 SDK 版本
+    compileSdkVersion 33
+
+    // 默认配置
+    defaultConfig {
+        // 最低支持的 Android API 级别
+        minSdkVersion 21
+        // 目标 API 级别
+        targetSdkVersion 33
+    }
+
+    // Lint 选项
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    // 源集配置
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    // 命名空间
+    namespace 'biz.cunning.cunning_document_scanner'
+}
+
+// 依赖项
+dependencies {
+    // Google ML Kit 文档扫描器
+    // 用于在 Android 上提供文档扫描功能
+    implementation 'com.google.android.gms:play-services-mlkit-document-scanner:16.0.0-beta1'
+    
+    // AndroidX 核心库
+    implementation 'androidx.core:core-ktx:1.9.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+}
