@@ -50,6 +50,15 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
 
+    // Java/Kotlin 兼容性
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
     // 命名空间
     namespace 'biz.cunning.cunning_document_scanner'
 }
